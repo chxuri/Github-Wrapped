@@ -3,7 +3,14 @@
   <head>
     <title>GitHub Wrapped</title>
     <div class="bod">
-        <%= link_to "Sign In with GitHub", auth_path %>
+        <p>Session user id: <%= session[:user_id].inspect %></p>
+        <% if logged_in? %>
+            <%= button_to "Log out", logout_path, method: :delete%>
+            <p>You're logged in YAY!</p>
+        <% else %>
+            <%= link_to "Sign in with GitHub", auth_path%>
+            <p>Not logged in yet :(</p>
+        <% end %>
     </div>
 </head>
 

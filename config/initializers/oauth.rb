@@ -5,5 +5,5 @@ OAUTH_CLIENT = OAuth2::Client.new(
   ENV["OAUTH_CLIENT_SECRET"],
   site: "https://github.com",
   authorize_url: "/login/oauth/authorize",
-  token_url: "/oauth/token"
+  token_url: "/login/oauth/access_token"
 )
