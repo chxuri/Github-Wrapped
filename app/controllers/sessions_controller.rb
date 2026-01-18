@@ -30,5 +30,16 @@ class SessionsController < ApplicationController
     redirect_to root_path, notice: "Logged out!"
   end
 
+  def index
+    response = Faraday.get("https://api.github.com/repositories") do |req|
+      req.headers["Accept"] = "application/vnd.github.v3+json"
+      req.headers["User-Agent"] = "wrapped"
+    end
+    puts "Response status: #{response.status}"
+    puts "Response body: #{response.body.inspect}"
+    @repos = JSON.parse(response.body)
+  end
+
+
   # token.get("https://api.github.com/user/repos")
 end

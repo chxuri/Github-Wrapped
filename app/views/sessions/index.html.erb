@@ -7,6 +7,9 @@
         <% if logged_in? %>
             <%= button_to "Log out", logout_path, method: :delete%>
             <p>You're logged in YAY!</p>
+
+            <%= debug(@repos)%>
+
         <% else %>
             <%= link_to "Sign in with GitHub", auth_path%>
             <p>Not logged in yet :(</p>

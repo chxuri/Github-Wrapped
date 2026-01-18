@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  get "repositories/display"
   get "/auth", to: "sessions#new"
   get "/auth/callback", to: "sessions#create"
   delete "/logout", to: "sessions#destroy"
@@ -16,5 +15,5 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
 
-  root "static#index"
+  root "sessions#index"
 end
