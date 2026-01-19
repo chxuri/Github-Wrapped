@@ -17,6 +17,7 @@ class SessionsController < ApplicationController
     end
 
     session[:user_id] = user.id
+    session[:github_token] = token.token
 
     redirect_to root_path, notice: "Signed in as #{user.name}"
   end
@@ -31,7 +32,9 @@ class SessionsController < ApplicationController
   end
 
   def index
-    response = Faraday.get("https://api.github.com/repositories") do |req|
+    return unless logged_in?
+    response = Faraday.get("https://api.github.com/user/repos") do |req|
+      req.headers["Authorization"] = "Bearer #{session[:github_token]}"
       req.headers["Accept"] = "application/vnd.github.v3+json"
       req.headers["User-Agent"] = "wrapped"
     end

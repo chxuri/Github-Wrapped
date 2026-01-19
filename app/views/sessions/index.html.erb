@@ -7,9 +7,36 @@
         <% if logged_in? %>
             <%= button_to "Log out", logout_path, method: :delete%>
             <p>You're logged in YAY!</p>
+            <p>Repositories worked on in 2025:</p>
+            <% @repos.each do |repo| %>
+                <% if repo["created_at"][0,4] == "2025" %>
+                    <p><%= repo["name"]%></p>
+                <% end %>
+            <% end %>
+            
+            <% latestRepo = @repos[0]%>
+            <% latestMonth = @repos[0]["updated_at"][5,7] %>
+            <% latestDay = @repos[0]["updated_at"][8, 10] %>
+        
+            <!--
+            <% latestRepo = "me" %>
+            <% latestMonth = "00" %>
+            <% latestDay = "00" %>
+            -->
 
-            <%= debug(@repos)%>
-
+            <% @repos.each do |repo| %>
+                <% if repo["updated_at"][5,7].to_i > latestMonth.to_i %>
+                    <% latestRepo = repo %>
+                    <% latestMonth = repo["updated_at"][5,7] %>
+                    <% latestDay = repo["updated_at"][8, 10] %>
+                <% elsif repo["updated_at"][5,7].to_i == latestMonth.to_i && repo["updated_at"][8, 10].to_i > latestDay.to_i%>
+                    <% latestRepo = repo %>
+                    <% latestMonth = repo["updated_at"][5,7] %>
+                    <% latestDay = repo["updated_at"][8, 10] %>
+                <% end %>
+            <%end%>
+            <p>Latest worked on repository: <%= latestRepo["name"] %><p>
+            <%= debug(@repos) %>
         <% else %>
             <%= link_to "Sign in with GitHub", auth_path%>
             <p>Not logged in yet :(</p>
