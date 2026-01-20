@@ -38,9 +38,38 @@ class SessionsController < ApplicationController
       req.headers["Accept"] = "application/vnd.github.v3+json"
       req.headers["User-Agent"] = "wrapped"
     end
-    puts "Response status: #{response.status}"
-    puts "Response body: #{response.body.inspect}"
+
+    # puts "Response status: #{response.status}"
+    # puts "Response body: #{response.body.inspect}"
     @repos = JSON.parse(response.body)
+
+    maxCommits = 0
+    @mostCommitted = @repos[0]
+
+    @repos.each do |repo|
+      page = 0
+      commitCount = 0
+      commits = ""
+      loop do
+        commitList = Faraday.get("https://api.github.com/repos/user/#{repo['name']}/commits", { page: page, per_page: 100 }) do |req|
+          req.headers["Authorization"] = "Bearer #{session[:github_token]}"
+          req.headers["Accept"] = "application/vnd.github.v3+json"
+          req.headers["User-Agent"] = "wrapped"
+        end
+
+        commits = JSON.parse(commitList.body)
+
+        break if commits.empty? || page == 3
+
+        commitCount += commits.size
+        page += 1
+      end
+
+      if commitCount > maxCommits
+        @mostCommitted = repo
+        maxCommits = commits.size
+      end
+    end
   end
 
 
