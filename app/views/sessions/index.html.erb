@@ -38,7 +38,7 @@
             <p>Latest worked on repository: <%= latestRepo["name"] %><p>
             <p>Most committed repository: <%= @mostCommitted["name"]%>
 
-            <%= debug(@repos) %>
+            <!--<%= debug(@repos) %>-->
         <% else %>
             <%= link_to "Sign in with GitHub", auth_path%>
             <p>Not logged in yet :(</p>

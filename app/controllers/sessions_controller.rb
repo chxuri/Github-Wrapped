@@ -45,13 +45,15 @@ class SessionsController < ApplicationController
 
     maxCommits = 0
     @mostCommitted = @repos[0]
+    commits = ""
 
     @repos.each do |repo|
-      page = 0
       commitCount = 0
-      commits = ""
+      page = 1
       loop do
-        commitList = Faraday.get("https://api.github.com/repos/user/#{repo['name']}/commits", { page: page, per_page: 100 }) do |req|
+        commitList = Faraday.get("https://api.github.com/repos/#{repo["owner"]["login"]}/#{repo["name"]}/commits") do |req|
+          req.params["page"] = page
+          req.params["per_page"] = 100
           req.headers["Authorization"] = "Bearer #{session[:github_token]}"
           req.headers["Accept"] = "application/vnd.github.v3+json"
           req.headers["User-Agent"] = "wrapped"
@@ -59,7 +61,7 @@ class SessionsController < ApplicationController
 
         commits = JSON.parse(commitList.body)
 
-        break if commits.empty? || page == 3
+        break if commits.empty? || page == 5
 
         commitCount += commits.size
         page += 1
@@ -67,7 +69,7 @@ class SessionsController < ApplicationController
 
       if commitCount > maxCommits
         @mostCommitted = repo
-        maxCommits = commits.size
+        maxCommits = commitCount
       end
     end
   end
