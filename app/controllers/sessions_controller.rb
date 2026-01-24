@@ -43,11 +43,24 @@ class SessionsController < ApplicationController
     # puts "Response body: #{response.body.inspect}"
     @repos = JSON.parse(response.body)
 
+    test = Faraday.get("https://api.github.com/repos/#{@repos[1]["owner"]["login"]}/#{@repos[1]["name"]}/commits") do |req|
+          req.params["page"] = 1
+          req.params["per_page"] = 100
+          req.headers["Authorization"] = "Bearer #{session[:github_token]}"
+          req.headers["Accept"] = "application/vnd.github.v3+json"
+          req.headers["User-Agent"] = "wrapped"
+    end
+
+    @onePageTest = JSON.parse(test.body)
+
     maxCommits = 0
     @mostCommitted = @repos[0]
-    commits = ""
+    @longestTimeRepo = @repos[0]
+    @commits = ""
+    @mostTime = 0
 
     @repos.each do |repo|
+      repoTime = 0
       commitCount = 0
       page = 1
       loop do
@@ -59,17 +72,60 @@ class SessionsController < ApplicationController
           req.headers["User-Agent"] = "wrapped"
         end
 
-        commits = JSON.parse(commitList.body)
+        @commits = JSON.parse(commitList.body)
 
-        break if commits.empty? || page == 5
-
-        commitCount += commits.size
+        break if @commits.empty?
+        commitCount += @commits.size
         page += 1
+
+        # loops thru commits in each repo and checks date + time
+        loopCounter = 0
+        for i in 0..@commits.length-2
+          @debugger = "works"
+          year2025 = @commits[i]["commit"]["author"]["date"][0, 4] == "2025"
+          month = @commits[i]["commit"]["author"]["date"][5, 7].to_i
+          nextMonth = @commits[i+1]["commit"]["author"]["date"][5, 7].to_i
+          day = @commits[i]["commit"]["author"]["date"][8, 10].to_i
+          nextDay = @commits[i+1]["commit"]["author"]["date"][8, 10].to_i
+          hour = @commits[i]["commit"]["author"]["date"][11, 13].to_i
+          nextHour = @commits[i+1]["commit"]["author"]["date"][11, 13].to_i
+          minute = @commits[i]["commit"]["author"]["date"][14, 16].to_i
+          nextMinute = @commits[i+1]["commit"]["author"]["date"][14, 16].to_i
+
+          checkTime = false
+
+          if year2025 && (month == nextMonth) && (day == nextDay)
+            if (nextHour - hour <= 1) || (nextHour - hour == 2 && (60 - minute + nextMinute + 60 <= 90))
+              checkTime = true
+            end
+          elsif year2025 && (month == nextMonth + 1 && nextDay == 1) || (day + 1 == nextDay)
+            if (nextHour - hour <= 1) || ((nextHour - hour == 2 || 12 - nextHour - hour == 2) && (60 - minute + nextMinute + 60 <= 90))
+              checkTime = true
+            end
+          end
+
+          if checkTime
+            if nextHour - hour == 0
+              repoTime += nextMinute - minute
+            elsif nextHour - hour = 1
+              repoTime += 60 - minute + nextMinute
+            else
+              repoTime += 60 - minute + nextMinute + 60
+            end
+          end
+
+          loopCounter += 1
+        end
       end
 
       if commitCount > maxCommits
         @mostCommitted = repo
         maxCommits = commitCount
+      end
+
+      if repoTime > @mostTime
+        @mostTime = repoTime
+        @longestTime = repo
       end
     end
   end

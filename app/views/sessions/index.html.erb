@@ -7,7 +7,7 @@
         <% if logged_in? %>
             <%= button_to "Log out", logout_path, method: :delete%>
             <p>You're logged in YAY!</p>
-            <p>Repositories worked on in 2025:</p>
+            <p>Repositories created in 2025:</p>
             <% @repos.each do |repo| %>
                 <% if repo["created_at"][0,4] == "2025" %>
                     <p><%= repo["name"]%></p>
@@ -37,8 +37,10 @@
             <%end%>
             <p>Latest worked on repository: <%= latestRepo["name"] %><p>
             <p>Most committed repository: <%= @mostCommitted["name"]%>
+            <p>The longest time you spent on a repository this year was <%= @longestTimeRepo["name"]%> for <%= @mostTime %> minutes</p>
+            <p><%= @debugger %></p>
 
-            <!--<%= debug(@repos) %>-->
+            <%= debug(@onePageTest) %>
         <% else %>
             <%= link_to "Sign in with GitHub", auth_path%>
             <p>Not logged in yet :(</p>
