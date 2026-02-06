@@ -5,6 +5,6 @@ class ApplicationController < ActionController::Base
   helper_method :logged_in?
 
   def logged_in?
-    session[:user_id].present?
+    session[:github_token].present?
   end
 end

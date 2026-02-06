@@ -12,22 +12,25 @@ class SessionsController < ApplicationController
     response = token.get("https://api.github.com/user")
     user_data = JSON.parse(response.body)
 
-    user = User.find_or_create_by(email: user_data["email"]) do |u|
-      u.name = user_data["name"]
-    end
-
-    session[:user_id] = user.id
     session[:github_token] = token.token
+    session[:github_username] = user_data["login"]
+    session[:github_name] = user_data["name"]
 
     redirect_to root_path, notice: "Signed in as #{user.name}"
   end
+
+  # def current_user
+  # @current_user ||= User.find_by(id: session[:user_id])
+  # session[:github_name]
+  # <p>Session user id: <%= session[:user_id].inspect %></p>
+  # end
 
   def callback_url
     "#{request.base_url}/auth/callback"
   end
 
   def destroy
-    session[:user_id] = nil
+    reset_session
     redirect_to root_path, notice: "Logged out!"
   end
 
@@ -79,10 +82,13 @@ class SessionsController < ApplicationController
         page += 1
 
         # loops thru commits in each repo and checks date + time
-        loopCounter = 0
+        @loopCounter = 0
         for i in 0..@commits.length-2
+          # if @commits[i]["commit"]["author"]["login"] == ""
+          # <!--<p>name: <%= @current_user.name %><p>-->
+          @commitCheck = @commits[0]["commit"]["author"]["date"][0, 4].to_i
           @debugger = "works"
-          year2025 = @commits[i]["commit"]["author"]["date"][0, 4] == "2025"
+          year2025 = (@commits[i]["commit"]["author"]["date"][0, 4].to_i == 2025)
           month = @commits[i]["commit"]["author"]["date"][5, 7].to_i
           nextMonth = @commits[i+1]["commit"]["author"]["date"][5, 7].to_i
           day = @commits[i]["commit"]["author"]["date"][8, 10].to_i
@@ -107,14 +113,14 @@ class SessionsController < ApplicationController
           if checkTime
             if nextHour - hour == 0
               repoTime += nextMinute - minute
-            elsif nextHour - hour = 1
+            elsif nextHour - hour == 1
               repoTime += 60 - minute + nextMinute
             else
               repoTime += 60 - minute + nextMinute + 60
             end
           end
 
-          loopCounter += 1
+          @loopCounter += 1
         end
       end
 
@@ -125,7 +131,7 @@ class SessionsController < ApplicationController
 
       if repoTime > @mostTime
         @mostTime = repoTime
-        @longestTime = repo
+        @longestTimeRepo = repo
       end
     end
   end

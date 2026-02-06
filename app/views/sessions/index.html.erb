@@ -3,7 +3,6 @@
   <head>
     <title>GitHub Wrapped</title>
     <div class="bod">
-        <p>Session user id: <%= session[:user_id].inspect %></p>
         <% if logged_in? %>
             <%= button_to "Log out", logout_path, method: :delete%>
             <p>You're logged in YAY!</p>
@@ -35,12 +34,18 @@
                     <% latestDay = repo["updated_at"][8, 10] %>
                 <% end %>
             <%end%>
+            <!--
+            <p>loopCounter: <%= @loopCounter %><p>
+            <p>year: <%= @commitCheck %><p>
+            -->
             <p>Latest worked on repository: <%= latestRepo["name"] %><p>
             <p>Most committed repository: <%= @mostCommitted["name"]%>
             <p>The longest time you spent on a repository this year was <%= @longestTimeRepo["name"]%> for <%= @mostTime %> minutes</p>
             <p><%= @debugger %></p>
 
+            <!--
             <%= debug(@onePageTest) %>
+            -->
         <% else %>
             <%= link_to "Sign in with GitHub", auth_path%>
             <p>Not logged in yet :(</p>
