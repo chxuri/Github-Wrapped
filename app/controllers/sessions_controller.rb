@@ -7,6 +7,7 @@ class SessionsController < ApplicationController
   end
 
   def create
+    puts callback_url
     code = params[:code]
     token = OAUTH_CLIENT.auth_code.get_token(code, redirect_uri: callback_url)
     response = token.get("https://api.github.com/user")
