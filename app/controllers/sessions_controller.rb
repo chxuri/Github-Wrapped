@@ -36,7 +36,11 @@ class SessionsController < ApplicationController
   end
 
   def callback_url
-    "#{ENV["HOST"]}/auth/callback"
+    if Rails.env.production?
+      "https://brief-kaycee-chxuri-cac0f3b7.koyeb.app/auth/callback"
+    else
+      "#{request.base_url}/auth/callback"
+    end
   end
 
 
