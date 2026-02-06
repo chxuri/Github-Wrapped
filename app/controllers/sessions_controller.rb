@@ -17,7 +17,7 @@ class SessionsController < ApplicationController
     session[:github_username] = user_data["login"]
     session[:github_name] = user_data["name"]
 
-    redirect_to root_path, notice: "Signed in as #{user.name}"
+    redirect_to root_path, notice: "Signed in as #{session[:github_name]}"
   end
 
   # def current_user
