@@ -34,6 +34,11 @@ class SessionsController < ApplicationController
     redirect_to root_path, notice: "Logged out!"
   end
 
+  def callback_url
+    "#{ENV["HOST"]}/auth/callback"
+  end
+
+
   def index
     return unless logged_in?
     response = Faraday.get("https://api.github.com/user/repos") do |req|

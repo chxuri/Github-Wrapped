@@ -216,7 +216,6 @@ GEM
     parser (3.3.10.0)
       ast (~> 2.4.1)
       racc
-    pg (1.5.9)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
@@ -408,7 +407,6 @@ DEPENDENCIES
   jbuilder
   kamal
   oauth2
-  pg
   propshaft
   puma (>= 5.0)
   rails (~> 8.0.4)
@@ -423,6 +421,9 @@ DEPENDENCIES
   turbo-rails
   tzinfo-data
   web-console
+
+RUBY VERSION
+   ruby 3.4.4p34
 
 BUNDLED WITH
    2.6.7

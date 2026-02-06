@@ -1,4 +1,6 @@
 source "https://rubygems.org"
+
+ruby "3.4.4"
 # bundle update rails
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.4"
