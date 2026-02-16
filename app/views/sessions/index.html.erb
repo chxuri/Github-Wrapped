@@ -6,43 +6,47 @@
         <% if logged_in? %>
             <%= button_to "Log out", logout_path, method: :delete%>
             <p>You're logged in YAY!</p>
-            <p>Repositories created in 2025:</p>
-            <% @repos.each do |repo| %>
-                <% if repo["created_at"][0,4] == "2025" %>
-                    <p><%= repo["name"]%></p>
+            <% if @repos.present? %>
+                <p>Repositories created in 2025:</p>
+                <% @repos.each do |repo| %>
+                    <% if repo["created_at"][0,4] == "2025" %>
+                        <p><%= repo["name"]%></p>
+                    <% end %>
                 <% end %>
-            <% end %>
             
-            <% latestRepo = @repos[0]%>
-            <% latestMonth = @repos[0]["updated_at"][5,7] %>
-            <% latestDay = @repos[0]["updated_at"][8, 10] %>
-        
+            
+                <% latestRepo = @repos.first%>
+                <% latestMonth = @repos.first["updated_at"][5,2] %>
+                <% latestDay = @repos.first["updated_at"][8, 2] %>
+            
             <!--
             <% latestRepo = "me" %>
             <% latestMonth = "00" %>
             <% latestDay = "00" %>
             -->
 
-            <% @repos.each do |repo| %>
-                <% if repo["updated_at"][5,7].to_i > latestMonth.to_i %>
-                    <% latestRepo = repo %>
-                    <% latestMonth = repo["updated_at"][5,7] %>
-                    <% latestDay = repo["updated_at"][8, 10] %>
-                <% elsif repo["updated_at"][5,7].to_i == latestMonth.to_i && repo["updated_at"][8, 10].to_i > latestDay.to_i%>
-                    <% latestRepo = repo %>
-                    <% latestMonth = repo["updated_at"][5,7] %>
-                    <% latestDay = repo["updated_at"][8, 10] %>
-                <% end %>
-            <%end%>
+                <% @repos.each do |repo| %>
+                    <% if repo["updated_at"][5,7].to_i > latestMonth.to_i %>
+                        <% latestRepo = repo %>
+                        <% latestMonth = repo["updated_at"][5,2] %>
+                        <% latestDay = repo["updated_at"][8, 2] %>
+                    <% elsif repo["updated_at"][5,2].to_i == latestMonth.to_i && repo["updated_at"][8, 2].to_i > latestDay.to_i%>
+                        <% latestRepo = repo %>
+                        <% latestMonth = repo["updated_at"][5,2] %>
+                        <% latestDay = repo["updated_at"][8, 2] %>
+                    <% end %>
+                <%end%>
             <!--
             <p>loopCounter: <%= @loopCounter %><p>
             <p>year: <%= @commitCheck %><p>
             -->
-            <p>Latest worked on repository: <%= latestRepo["name"] %><p>
-            <p>Most committed repository: <%= @mostCommitted["name"]%>
-            <p>The longest time you spent on a repository this year was <%= @longestTimeRepo["name"]%> for <%= @mostTime %> minutes</p>
-            <p><%= @debugger %></p>
-
+                <p>Latest worked on repository: <%= latestRepo["name"] %><p>
+                <p>Most committed repository: <%= @mostCommitted["name"]%> (<%= @maxCommits %> commits total)
+                <p>The longest time you spent on a repository this year was <%= @longestTimeRepo["name"]%> for <%= (@mostTime/60).to_i %> hours and <%= @mostTime % 60 %> minutes</p>
+                <p><%= @debugger %></p>
+            <% else %>
+                <p> No repos found :( </p>
+            <% end %>
             <!--
             <%= debug(@onePageTest) %>
             -->
