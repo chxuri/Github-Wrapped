@@ -2,59 +2,67 @@
 <html>
   <head>
     <title>GitHub Wrapped</title>
+  </head>
+  <body>
     <div class="bod">
+        <%# analyzeAttempt = 0 %>
+        <h1>Github Wrapped</h1>
+        <h5>FYI: all of this is approximated (especially the time) and is based off of PUBLIC repos owned by YOU, not other people</h5>
+        <h6>notes: PLEASE BE PATIENT (yall spend a LOT of time on github so theres a lot to fetch) + pretty styling coming soon :D</h6>
         <% if logged_in? %>
+            <%# if @wrapped.present? %>
             <%= button_to "Log out", logout_path, method: :delete%>
             <p>You're logged in YAY!</p>
-            <% if @repos.present? %>
+            <% if (session[:repos]).present? && session[:stats].present?%>
                 <p>Repositories created in 2025:</p>
-                <% @repos.each do |repo| %>
+                <% session[:repos].each do |repo| %>
                     <% if repo["created_at"][0,4] == "2025" %>
                         <p><%= repo["name"]%></p>
                     <% end %>
                 <% end %>
             
-            
-                <% latestRepo = @repos.first%>
-                <% latestMonth = @repos.first["updated_at"][5,2] %>
-                <% latestDay = @repos.first["updated_at"][8, 2] %>
-            
-            <!--
-            <% latestRepo = "me" %>
-            <% latestMonth = "00" %>
-            <% latestDay = "00" %>
-            -->
-
-                <% @repos.each do |repo| %>
-                    <% if repo["updated_at"][5,7].to_i > latestMonth.to_i %>
-                        <% latestRepo = repo %>
-                        <% latestMonth = repo["updated_at"][5,2] %>
-                        <% latestDay = repo["updated_at"][8, 2] %>
-                    <% elsif repo["updated_at"][5,2].to_i == latestMonth.to_i && repo["updated_at"][8, 2].to_i > latestDay.to_i%>
-                        <% latestRepo = repo %>
-                        <% latestMonth = repo["updated_at"][5,2] %>
-                        <% latestDay = repo["updated_at"][8, 2] %>
-                    <% end %>
-                <%end%>
-            <!--
-            <p>loopCounter: <%= @loopCounter %><p>
-            <p>year: <%= @commitCheck %><p>
-            -->
-                <p>Latest worked on repository: <%= latestRepo["name"] %><p>
-                <p>Most committed repository: <%= @mostCommitted["name"]%> (<%= @maxCommits %> commits total)
-                <p>The longest time you spent on a repository this year was <%= @longestTimeRepo["name"]%> for <%= (@mostTime/60).to_i %> hours and <%= @mostTime % 60 %> minutes</p>
-                <p><%= @debugger %></p>
+                
+                <%# latestRepo = @reposLimited.first%>
+                <%# latestMonth = @reposLimited.first["updated_at"][5,2] %>
+                <%# latestDay = @reposLimited.first["updated_at"][8, 2] %>
+                
+                <%# latestRepo = "me" %>
+                <%# latestMonth = "00" %>
+                <%# latestDay = "00" %>
+                
+                <%# @repos.each do |repo| %>
+                    <%# if repo["updated_at"][5,7].to_i > latestMonth.to_i %>
+                        <%# latestRepo = repo %>
+                        <%# latestMonth = repo["updated_at"][5,2] %>
+                        <%# latestDay = repo["updated_at"][8, 2] %>
+                    <%#elsif repo["updated_at"][5,2].to_i == latestMonth.to_i && repo["updated_at"][8, 2].to_i > latestDay.to_i%>
+                        <%# latestRepo = repo %>
+                        <%# latestMonth = repo["updated_at"][5,2] %>
+                        <%# latestDay = repo["updated_at"][8, 2] %>
+                    <%# end %>
+                <%#end%>
+                
+                <%# @loopCounter %>
+                <%# @commitCheck %>
+                
+                <p>Latest worked on repository (owned by you): <%= session[:stats][:latest_repo_HTML] %><p>
+                <p>Most committed repository: <%= session[:stats][:most_committed]%> (<%= session[:stats][:max_commits] %> commits total)
+                <p>The longest time you spent on a repository this year was <%= session[:stats][:longest_time_repo]%> for <%= (session[:stats][:most_time].to_i/60).to_i %> hours and <%= (session[:stats][:most_time].to_i % 60).to_i %> minutes</p>
+                <%# @debugger %>
+                <%# elsif analyzeAttempt >= 1 %>
+                <!--<p>You don't have any public repos >:(</p>-->
+                
             <% else %>
-                <p> No repos found :( </p>
+                <%= button_to "Analyze my github", analyze_path, method: :post, data: {turbo:false} %>
             <% end %>
-            <!--
-            <%= debug(@onePageTest) %>
-            -->
         <% else %>
             <%= link_to "Sign in with GitHub", auth_path%>
             <p>Not logged in yet :(</p>
         <% end %>
+        
+        <%# debug(@onePageTest) %>
+        
     </div>
-</head>
+  </body>
 
 

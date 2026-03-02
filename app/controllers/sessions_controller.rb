@@ -40,9 +40,9 @@ class SessionsController < ApplicationController
     redirect_to root_path, notice: "Logged out!"
   end
 
-
-  def index
+  def analyze
     return unless logged_in?
+    # return if session[:stats].present?
     # Rails.logger.debug "TOKEN: #{session[:github_token].inspect}"
     response = Faraday.get("https://api.github.com/user/repos") do |req|
       req.headers["Authorization"] = "Bearer #{session[:github_token]}"
@@ -52,6 +52,7 @@ class SessionsController < ApplicationController
 
     # puts "Response status: #{response.status}"
     # puts "Response body: #{response.body.inspect}"
+
     @repos = JSON.parse(response.body)
     unless @repos.is_a?(Array)
       @repos = []
@@ -75,11 +76,27 @@ class SessionsController < ApplicationController
     @longestTimeRepo = @repos.first
     @commits = ""
     @mostTime = 0
+    @latestRepoHTML = @repos.first
+    @latestMonthHTML = @repos.first["updated_at"][5, 2]
+    @latestDayHTML = @repos.first["updated_at"][8, 2]
 
     @repos.each do |repo|
       repoTime = 0
       commitCount = 0
       page = 1
+
+      if repo["updated_at"][5, 7].to_i > @latestMonthHTML.to_i
+        @latestRepoHTML = repo
+        @latestMonthHTML = repo["updated_at"][5, 2]
+        @latestDayHTML = repo["updated_at"][8, 2]
+      elsif repo["updated_at"][5, 2].to_i == @latestMonthHTML.to_i && repo["updated_at"][8, 2].to_i > @latestDayHTML.to_i
+        @latestRepoHTML = repo
+        @latestMonthHTML = repo["updated_at"][5, 2]
+        @latestDayHTML = repo["updated_at"][8, 2]
+      end
+
+
+
       loop do
         # Rails.logger.info repo.class
         # Rails.logger.info repo.inspect
@@ -90,6 +107,7 @@ class SessionsController < ApplicationController
           req.headers["Accept"] = "application/vnd.github.v3+json"
           req.headers["User-Agent"] = "wrapped"
         end
+        # puts "Response body: #{commitList.body.inspect}"
 
         @commits = JSON.parse(commitList.body)
 
@@ -154,8 +172,34 @@ class SessionsController < ApplicationController
         @longestTimeRepo = repo
       end
     end
+
+
+    session[:stats] = {
+      # work from here like this
+      most_committed: @mostCommitted["name"],
+      max_commits: @maxCommits,
+      most_time: @mostTime,
+      longest_time_repo: @longestTimeRepo["name"],
+      # commits: @commits,
+      latest_repo_HTML: @latestRepoHTML["name"]
+      # latest_day_HTML: @latestDayHTML,
+      # latest_month_HTML: @latestMonthHTML
+    }
+    session[:repos] = @repos.map do |repo|
+    {
+      "name" => repo["name"],
+      "created_at" => repo["created_at"],
+      "updated_at" => repo["updated_at"]
+    }
+    end
+
+    render :index
+    # redirect_to root_path
   end
-
-
   # token.get("https://api.github.com/user/repos")
+
+  def index
+    nil unless logged_in?
+    # fix sessions -> wrapped in the future ^
+  end
 end
