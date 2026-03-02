@@ -10,7 +10,7 @@
         <h5>FYI: all of this is approximated (especially the time) and is based off of PUBLIC repos owned by YOU, not other people</h5>
         <h6>notes: PLEASE BE PATIENT (yall spend a LOT of time on github so theres a lot to fetch) + pretty styling coming soon :D</h6>
         <% if logged_in? %>
-            <%# if @wrapped.present? %>
+            <%# session[:stats] = {no_repo_found: false} %>
             <%= button_to "Log out", logout_path, method: :delete%>
             <p>You're logged in YAY!</p>
             <% if (session[:repos]).present? && session[:stats].present?%>
@@ -51,7 +51,8 @@
                 <%# @debugger %>
                 <%# elsif analyzeAttempt >= 1 %>
                 <!--<p>You don't have any public repos >:(</p>-->
-                
+            <% elsif session[:stats][:no_repo_found] == true %>
+                <p>No public repos found :( <br> Lock in solider 🫡 </p>
             <% else %>
                 <%= button_to "Analyze my github", analyze_path, method: :post, data: {turbo:false} %>
             <% end %>
