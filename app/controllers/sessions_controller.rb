@@ -214,6 +214,7 @@ class SessionsController < ApplicationController
   # token.get("https://api.github.com/user/repos")
 
   def index
+    session[:stats] = { no_repo_found: false }
     nil unless logged_in?
     # fix sessions -> wrapped in the future ^
   end
