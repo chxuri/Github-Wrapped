@@ -42,6 +42,7 @@ class SessionsController < ApplicationController
   end
 
   def analyze
+    # FOR FUTURE: potentially check like thenth repo then keep going further until it reaches the end of 2025 repos??? like a selection sort typa thing
     @noRepoFound = false
     return unless logged_in?
     # return if session[:stats].present?
@@ -83,20 +84,31 @@ class SessionsController < ApplicationController
 
     if !@repos.blank? && @repos.is_a?(Array)
       @maxCommits = 0
-      @mostCommitted = @repos.first
-      @longestTimeRepo = @repos.first
       @commits = ""
       @mostTime = 0
-      @latestRepoHTML = @repos.first
-      @latestMonthHTML = @repos.first["updated_at"][5, 2]
-      @latestDayHTML = @repos.first["updated_at"][8, 2]
+
+      if @repos.first && @repos.first["updated_at"]
+        @mostCommitted = @repos.first
+        @longestTimeRepo = @repos.first
+        @latestRepoHTML = @repos.first
+        @latestMonthHTML = @repos.first["updated_at"][5, 2]
+        @latestDayHTML = @repos.first["updated_at"][8, 2]
+      else
+        @mostCommitted = nil
+        @longestTimeRepo = nil
+        @latestRepoHTML = nil
+        @latestMonthHTML = 0
+        @latestDayHTML = 0
+      end
 
       @repos.each do |repo|
         repoTime = 0
         commitCount = 0
         page = 1
 
-        if repo["updated_at"][5, 7].to_i > @latestMonthHTML.to_i
+        next unless repo["updated_at"]
+
+        if repo["updated_at"][5, 2].to_i > @latestMonthHTML.to_i
           @latestRepoHTML = repo
           @latestMonthHTML = repo["updated_at"][5, 2]
           @latestDayHTML = repo["updated_at"][8, 2]
@@ -107,7 +119,7 @@ class SessionsController < ApplicationController
         end
 
 
-
+        next unless repo["owner"] && repo["owner"]["login"] && repo["name"]
         loop do
           # Rails.logger.info repo.class
           # Rails.logger.info repo.inspect
@@ -121,7 +133,7 @@ class SessionsController < ApplicationController
           # puts "Response body: #{commitList.body.inspect}"
 
           @commits = JSON.parse(commitList.body)
-
+          break unless @commits.is_a?(Array)
           break if @commits.empty?
           # commitCount += @commits.size
           # page += 1
@@ -129,6 +141,7 @@ class SessionsController < ApplicationController
           # loops thru commits in each repo and checks date + time
           @loopCounter = 0
           for i in 0..@commits.length-2
+            next unless @commits[i] && @commits[i+1] && @commits[i]["commit"] && @commits[i+1]["commit"] && @commits[i]["commit"]["author"] && @commits[i+1]["commit"]["author"] && @commits[i]["commit"]["author"]["date"] && @commits[i+1]["commit"]["author"]["date"]
             if @commits[i]["author"] && @commits[i]["author"]["login"] == session[:github_username]
 
               # <!--<p>name: <%= @current_user.name %><p>-->
@@ -185,16 +198,17 @@ class SessionsController < ApplicationController
       end
       session[:stats] = {
         # work from here like this
-        most_committed: @mostCommitted["name"],
+        most_committed: @mostCommitted&.[]("name"),
         max_commits: @maxCommits,
         most_time: @mostTime,
-        longest_time_repo: @longestTimeRepo["name"],
+        longest_time_repo: @longestTimeRepo&.[]("name"),
         # commits: @commits,
-        latest_repo_HTML: @latestRepoHTML["name"],
+        latest_repo_HTML: @latestRepoHTML&.[]("name"),
         no_repo_found: @noRepoFound
         # latest_day_HTML: @latestDayHTML,
         # latest_month_HTML: @latestMonthHTML
       }
+
       session[:repos] = @repos.map do |repo|
       {
         "name" => repo["name"],

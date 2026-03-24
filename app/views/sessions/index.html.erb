@@ -45,9 +45,23 @@
                 <%# @loopCounter %>
                 <%# @commitCheck %>
                 
-                <p>Latest worked on repository (owned by you): <%= session[:stats][:latest_repo_HTML] %><p>
-                <p>Most committed repository: <%= session[:stats][:most_committed]%> (<%= session[:stats][:max_commits] %> commits total)
-                <p>The longest time you spent on a repository this year was <%= session[:stats][:longest_time_repo]%> for <%= (session[:stats][:most_time].to_i/60).to_i %> hours and <%= (session[:stats][:most_time].to_i % 60).to_i %> minutes</p>
+                <% if (session[:stats][:latest_repo_HTML]).present? %>
+                    <p>Latest worked on repository (owned by you): <%= session[:stats][:latest_repo_HTML] %><p>
+                <% else %>
+                    <p>Latest worked on repo does not exist :(</p>
+                <% end %>
+
+                <% if (session[:stats][:most_committed]).present? && (session[:stats][:max_commits]).present? %>
+                    <p>Most committed repository: <%= session[:stats][:most_committed]%> (<%= session[:stats][:max_commits] %> commits total)
+                <% else %>
+                    <p>Most committed repo does not exist :(</p>
+                <% end %>
+
+                <% if (session[:stats][:longest_time_repo]).present? && (session[:stats][:most_time]).present? %>
+                    <p>The longest time you spent on a repository this year was <%= session[:stats][:longest_time_repo]%> for <%= (session[:stats][:most_time].to_i/60).to_i %> hours and <%= (session[:stats][:most_time].to_i % 60).to_i %> minutes</p>
+                <% else %>
+                    <p>Longest timed repo does not exist :(</p>
+                <% end %>
                 <%# @debugger %>
                 <%# elsif analyzeAttempt >= 1 %>
                 <!--<p>You don't have any public repos >:(</p>-->
