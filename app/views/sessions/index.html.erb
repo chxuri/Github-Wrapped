@@ -8,14 +8,14 @@
         <%# analyzeAttempt = 0 %>
         <h1>Github Wrapped</h1>
         <h5>FYI: all of this is approximated (especially the time) and is based off of PUBLIC repos owned by YOU, not other people</h5>
-        <h6>notes: PLEASE BE PATIENT (yall spend a LOT of time on github so theres a lot to fetch) + pretty styling coming soon :D</h6>
+        <h6>notes: PLEASE BE PATIENT--that means dont click the analyze button 300 times, wait 15 secs (yall spend a LOT of time on github so theres a lot to fetch) + pretty styling coming soon :D</h6>
         <% if logged_in? %>
             <%# session[:stats] = {no_repo_found: false} %>
             <%= button_to "Log out", logout_path, method: :delete%>
             <p>You're logged in YAY!</p>
-            <% if (session[:repos]).present? && session[:stats].present?%>
+            <% if (@repos).present? && session[:stats].present?%>
                 <p>Repositories created in 2025:</p>
-                <% session[:repos].each do |repo| %>
+                <% @repos.each do |repo| %>
                     <% if repo["created_at"][0,4] == "2025" %>
                         <p><%= repo["name"]%></p>
                     <% end %>

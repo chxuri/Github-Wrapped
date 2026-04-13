@@ -209,13 +209,13 @@ class SessionsController < ApplicationController
         # latest_month_HTML: @latestMonthHTML
       }
 
-      session[:repos] = @repos.map do |repo|
-      {
-        "name" => repo["name"],
-        "created_at" => repo["created_at"],
-        "updated_at" => repo["updated_at"]
-      }
-      end
+      # session[:repos] = @repos.map do |repo|
+      # {
+      # "name" => repo["name"],
+      # "created_at" => repo["created_at"],
+      # "updated_at" => repo["updated_at"]
+      # }
+      # end
     else
       puts "got here!"
       @noRepoFound = true
@@ -230,6 +230,10 @@ class SessionsController < ApplicationController
   def index
     session[:stats] = { no_repo_found: false }
     nil unless logged_in?
+
+    if request.path == "/analyze"
+      redirect_to root_path, alert: "dont reload the page! (or you have to restart)" and return
+    end
     # fix sessions -> wrapped in the future ^
   end
 end
